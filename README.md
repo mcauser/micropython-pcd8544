@@ -44,14 +44,14 @@ from machine import Pin, SPI
 
 spi = SPI(1)
 spi.init(baudrate=8000000, polarity=0, phase=0)
-CE = Pin(2)
-DC = Pin(15)
-RST = Pin(4)
+cs = Pin(2)
+dc = Pin(15)
+rst = Pin(0)
 
 # backlight on
-BL = Pin(12, Pin.OUT, value=1)
+bl = Pin(12, Pin.OUT, value=1)
 
-lcd = pcd8544.PCD8544(spi, CE, DC, RST)
+lcd = pcd8544.PCD8544(spi, cs, dc, rst)
 
 # test pattern (50% on)
 lcd.data(bytearray([0x55, 0xAA] * 42 * 6))
@@ -77,6 +77,7 @@ lcd.invert(True)
 lcd.invert(False)
 
 lcd.reset()
+lcd.init()
 
 # adjust contrast, bias and temp
 lcd.contrast(0x1f, pcd8544.BIAS_1_40, pcd8544.TEMP_COEFF_0)
@@ -87,11 +88,8 @@ lcd.contrast(0x3f, pcd8544.BIAS_1_40, pcd8544.TEMP_COEFF_2)
 
 # use the framebuf
 import framebuf
-width = 84
-height = 48
-pages = height // 8
-buffer = bytearray(pages * width)
-framebuf = framebuf.FrameBuffer1(buffer, width, height)
+buffer = bytearray((lcd.height // 8) * lcd.width)
+framebuf = framebuf.FrameBuffer1(buffer, lcd.width, lcd.height)
 
 framebuf.text('Hello', 0, 0, 1)
 framebuf.pixel(30, 30, 1)
@@ -136,7 +134,7 @@ In horizontal mode you can use framebuf with MONO_VLSB format. Vertical mode doe
 
 WeMos D1 Mini | PCD8544 LCD
 ------------- | ----------
-D2 (GPIO4)    | 0 RST
+D3 (GPIO0)    | 0 RST
 D4 (GPIO2)    | 1 CE
 D8 (GPIO15)   | 2 DC
 D7 (GPIO13)   | 3 Din
