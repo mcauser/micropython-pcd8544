@@ -66,7 +66,7 @@ class PCD8544:
 			self.fn |= ADDRESSING_VERT
 
 		self.contrast(contrast, bias, temp)
-		self._write_cmd(DISPLAY_NORMAL)
+		self.cmd(DISPLAY_NORMAL)
 		self.clear()
 
 	def reset(self):
@@ -81,11 +81,11 @@ class PCD8544:
 	def power_on(self):
 		self.cs(1)
 		self.fn &= ~POWER_DOWN
-		self._write_cmd(self.fn)
+		self.cmd(self.fn)
 
 	def power_off(self):
 		self.fn |= POWER_DOWN
-		self._write_cmd(self.fn)
+		self.cmd(self.fn)
 
 	def contrast(self, contrast=0x3f, bias=BIAS_1_40, temp=TEMP_COEFF_2):
 		for cmd in (
@@ -101,28 +101,28 @@ class PCD8544:
 			SET_VOP | contrast,
 			# revert to basic instruction set
 			self.fn & ~EXTENDED_INSTR):
-			self._write_cmd(cmd)
+			self.cmd(cmd)
 
 	def invert(self, invert):
-		self._write_cmd(DISPLAY_INVERSE if invert else DISPLAY_NORMAL)
+		self.cmd(DISPLAY_INVERSE if invert else DISPLAY_NORMAL)
 
 	def clear(self):
 		# clear DDRAM, reset x,y position to 0,0
-		self._write_data([0] * (self.height * self.width // 8))
+		self.data([0] * (self.height * self.width // 8))
 		self.position(0, 0)
 
 	def position(self, x, y):
 		# set cursor to column x (0~83), bank y (0~5)
-		self._write_cmd(COL_ADDR | x) # set x pos (0~83)
-		self._write_cmd(BANK_ADDR | y) # set y pos (0~5)
+		self.cmd(COL_ADDR | x) # set x pos (0~83)
+		self.cmd(BANK_ADDR | y) # set y pos (0~5)
 
-	def _write_cmd(self, command):
+	def cmd(self, command):
 		self.dc(0)
 		self.cs(0)
 		self.spi.write(bytearray([command]))
 		self.cs(1)
 
-	def _write_data(self, data):
+	def data(self, data):
 		self.dc(1)
 		self.cs(0)
 		self.spi.write(pack('B'*len(data), *data))
