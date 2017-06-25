@@ -64,6 +64,7 @@ class PCD8544:
 		# switch to vertical addressing
 		if not horizontal:
 			self.fn |= ADDRESSING_VERT
+			self.cmd(self.fn)
 
 		self.contrast(contrast, bias, temp)
 		self.cmd(DISPLAY_NORMAL)
