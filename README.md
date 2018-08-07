@@ -5,6 +5,7 @@ A MicroPython library for the PCD8544 84x48 LCD, used by the Nokia 5110 display.
 ![demo](docs/demo.jpg)
 
 #### Pinout
+
 ```
 +-----------------+
 |                 |
@@ -38,7 +39,7 @@ $ ampy put pcd8544.py
 
 **Hello World**
 
-```
+```python
 import pcd8544
 from machine import Pin, SPI
 
@@ -149,3 +150,7 @@ G             | 7 Gnd
 * [micropython.org](http://micropython.org)
 * [Adafruit Ampy](https://learn.adafruit.com/micropython-basics-load-files-and-run-code/install-ampy)
 * [PCD8544 Datasheet](docs/PCD8544.pdf)
+
+## License
+
+Licensed under the [MIT License](http://opensource.org/licenses/MIT).
