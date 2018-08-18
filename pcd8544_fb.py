@@ -68,7 +68,7 @@ BANK_ADDR        = const(0x40) # y pos, in banks of 8 rows (0~5)
 WIDTH            = const(0x54) # 84
 HEIGHT           = const(0x30) # 48
 
-class PCD8544:
+class PCD8544_FB(framebuf.FrameBuffer):
 	def __init__(self, spi, cs, dc, rst=None):
 		self.spi    = spi
 		self.cs     = cs   # chip enable, active LOW
@@ -80,6 +80,10 @@ class PCD8544:
 
 		if self.rst:
 			self.rst.init(self.rst.OUT, value=1)
+
+		self.buf = bytearray((HEIGHT // 8) * WIDTH)
+		super().__init__(self.buf, WIDTH, HEIGHT, framebuf.MONO_VLSB)
+
 		self.reset()
 		self.init()
 
@@ -158,41 +162,6 @@ class PCD8544:
 		self.cs(0)
 		self.spi.write(pack('B'*len(data), *data))
 		self.cs(1)
-
-
-class PCD8544_FRAMEBUF(PCD8544):
-	def __init__(self, spi, cs, dc, rst=None):
-		super().__init__(spi, cs, dc, rst)
-		self.buf = bytearray((HEIGHT // 8) * WIDTH)
-		self.fbuf = framebuf.FrameBuffer(self.buf, WIDTH, HEIGHT, framebuf.MONO_VLSB)
-
-	def fill(self, col):
-		self.fbuf.fill(col)
-
-	def pixel(self, x, y, col):
-		self.fbuf.pixel(x, y, col)
-
-	def scroll(self, dx, dy):
-		self.fbuf.scroll(dx, dy)
-		# software scroll
-
-	def text(self, string, x, y, col):
-		self.fbuf.text(string, x, y, col)
-
-	def line(self, x1, y1, x2, y2, col):
-		self.fbuf.line(x1, y1, x2, y2, col)
-
-	def hline(self, x, y, w, col):
-		self.fbuf.hline(x, y, w, col)
-
-	def vline(self, x, y, h, col):
-		self.fbuf.vline(x, y, h, col)
-
-	def rect(self, x, y, w, h, col):
-		self.fbuf.rect(x, y, w, h, col)
-
-	def fill_rect(self, x, y, w, h, col):
-		self.fbuf.fill_rect(x, y, w, h, col)
 
 	def show(self):
 		self.data(self.buf)

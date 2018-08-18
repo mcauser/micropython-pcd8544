@@ -1,50 +1,42 @@
 # MicroPython PCD8544
 
-A MicroPython library for the PCD8544 84x48 LCD, used by the Nokia 5110 display.
+A MicroPython library for the Philips PCD8544 84x48 monochrome LCD, used by the Nokia 5110 display.
 
 ![demo](docs/demo.jpg)
 
 #### Pinout
 
-```
-+-----------------+
-|                 |
-| +-------------+ |
-| | Nokia 5110  | |
-| | PCD8544     | |
-| | 84x48       | |
-| |             | |
-| +-------------+ |
-+-----------------+
-  | | | | | | | |
-  1 2 3 4 5 6 7 8
-```
+![demo](docs/nokia5110_pinout.jpg)
 
-* 1 RST
-* 2 CE
-* 3 DC
-* 4 DIN
-* 5 CLK
-* 6 VCC
-* 7 BL
-* 8 GND
+![demo](docs/esp8266_pinout.jpg)
+
+Pin | Name | Description
+:--:|:----:|:--------------------------------
+1   | RST  | External reset input, active low
+2   | CE   | Chip enable, active low
+3   | D/C  | Data high / Command low
+4   | DIN  | Serial data input
+5   | CLK  | Serial clock, up to 4 Mbits/s
+6   | VCC  | Supply voltage 2.7-3.3V
+7   | BL   | Backlight
+8   | GND  | Ground
 
 ## Example
 
 Copy the file to your device, using ampy, webrepl or compiling and deploying. eg.
 
-```
+```bash
 $ ampy put pcd8544.py
 ```
 
-**Hello World**
+**Basic Example**
 
 ```python
 import pcd8544
 from machine import Pin, SPI
 
 spi = SPI(1)
-spi.init(baudrate=8000000, polarity=0, phase=0)
+spi.init(baudrate=2000000, polarity=0, phase=0)
 cs = Pin(2)
 dc = Pin(15)
 rst = Pin(0)
@@ -59,14 +51,14 @@ lcd.data(bytearray([0x55, 0xAA] * 42 * 6))
 
 # bitmap smiley (horzontal msb)
 lcd.clear()
-# draw 8x16 in bank 0
+# draw 8x16 in bank 0 (rows 0..7)
 lcd.position(0, 0)
 lcd.data(bytearray(b'\xE0\x38\xE4\x22\xA2\xE1\xE1\x61\xE1\x21\xA2\xE2\xE4\x38\xE0\x00'))
-# draw 8x16 in bank 1
+# draw 8x16 in bank 1 (rows 8..15)
 lcd.position(0, 1)
 lcd.data(bytearray(b'\x03\x0C\x10\x21\x21\x41\x48\x48\x48\x49\x25\x21\x10\x0C\x03\x00'))
 
-# toggle display, DDRAM persists image
+# toggle display, image persists in DDRAM
 lcd.power_off()
 lcd.power_on()
 
@@ -80,37 +72,18 @@ lcd.invert(False)
 lcd.reset()
 lcd.init()
 
+# swtich to vertical addressing
+lcd.init(horizontal=False)
+
 # adjust contrast, bias and temp
 lcd.contrast(0x1f, pcd8544.BIAS_1_40, pcd8544.TEMP_COEFF_0)
 lcd.contrast(0x3f, pcd8544.BIAS_1_48, pcd8544.TEMP_COEFF_0)
 lcd.contrast(0x3c, pcd8544.BIAS_1_40, pcd8544.TEMP_COEFF_0)
 lcd.contrast(0x42, pcd8544.BIAS_1_48, pcd8544.TEMP_COEFF_0)
 lcd.contrast(0x3f, pcd8544.BIAS_1_40, pcd8544.TEMP_COEFF_2)
-
-# use the framebuf
-import framebuf
-buffer = bytearray((lcd.height // 8) * lcd.width)
-framebuf = framebuf.FrameBuffer1(buffer, lcd.width, lcd.height)
-
-framebuf.text('Hello', 0, 0, 1)
-framebuf.pixel(30, 30, 1)
-framebuf.pixel(31, 31, 1)
-framebuf.pixel(32, 32, 1)
-framebuf.pixel(33, 33, 1)
-framebuf.pixel(34, 34, 1)
-framebuf.hline(0, 20, 8, 1)
-framebuf.vline(30, 8, 8, 1)
-framebuf.rect(40, 16, 8, 8, 1)
-framebuf.fill_rect(16, 32, 8, 8, 1)
-
-lcd.position(0, 0)
-lcd.data(buffer)
-
-framebuf.fill(0)
-lcd.data(buffer)
 ```
 
-See [pcd8544_examples.py](pcd8544_examples.py) for more.
+See [/examples](/examples) for more.
 
 ## Addressing
 
@@ -126,6 +99,8 @@ In horizontal mode you can use framebuf with MONO_VLSB format. Vertical mode doe
 
 ![Vertical](docs/pcd8544-vertical.gif)
 
+See [/examples/addressing](/examples/addressing) for more details.
+
 ## Parts
 
 * [WeMos D1 Mini](https://www.aliexpress.com/store/product/D1-mini-Mini-NodeMcu-4M-bytes-Lua-WIFI-Internet-of-Things-development-board-based-ESP8266/1331105_32529101036.html) $4.00 USD
@@ -135,14 +110,14 @@ In horizontal mode you can use framebuf with MONO_VLSB format. Vertical mode doe
 
 WeMos D1 Mini | PCD8544 LCD
 ------------- | ----------
-D3 (GPIO0)    | 0 RST
-D4 (GPIO2)    | 1 CE
-D8 (GPIO15)   | 2 DC
-D7 (GPIO13)   | 3 Din
-D5 (GPIO14)   | 4 Clk
-3V3           | 5 Vcc
-D6 (GPIO12)   | 6 BL
-G             | 7 Gnd
+D3 (GPIO0)    | 1 RST
+D4 (GPIO2)    | 2 CE
+D8 (GPIO15)   | 3 DC
+D7 (GPIO13)   | 4 Din
+D5 (GPIO14)   | 5 Clk
+3V3           | 6 Vcc
+D6 (GPIO12)   | 7 BL
+G             | 8 Gnd
 
 ## Links
 
