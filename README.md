@@ -6,9 +6,8 @@ A MicroPython library for the Philips PCD8544 84x48 monochrome LCD, used by the 
 
 #### Pinout
 
-![demo](docs/nokia5110_pinout.jpg)
-
-![demo](docs/esp8266_pinout.jpg)
+| ![demo](docs/nokia5110_pinout.jpg) | ![demo](docs/esp8266_pinout.jpg) |
+|-|-|
 
 Pin | Name | Description
 :--:|:----:|:--------------------------------
