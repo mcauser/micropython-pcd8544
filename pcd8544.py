@@ -75,6 +75,9 @@ class PCD8544:
 		self.dc     = dc   # data HIGH, command LOW
 		self.rst    = rst  # reset, active LOW
 
+		self.height = HEIGHT  # For Writer class
+		self.width = WIDTH
+
 		self.cs.init(self.cs.OUT, value=1)
 		self.dc.init(self.dc.OUT, value=0)
 
